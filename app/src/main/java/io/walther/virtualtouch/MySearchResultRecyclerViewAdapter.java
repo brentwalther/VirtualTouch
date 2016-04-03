@@ -61,7 +61,8 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private static final String API_KEY = "AIzaSyBPJHkiABDrtD8TuGvLtwK3gg5hb8SMHpE";
+        // DON'T COMMIT API KEYS
+        private static final String API_KEY = "";
 
         public final View mView;
         public final TextView mIdView;

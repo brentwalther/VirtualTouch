@@ -1,6 +1,7 @@
 package io.walther.virtualtouch;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +27,8 @@ import java.util.List;
 public class SearchActivity extends AppCompatActivity
         implements SearchResultFragment.OnSearchResultListInteractionListener {
 
-    private static final String API_KEY = "AIzaSyBPJHkiABDrtD8TuGvLtwK3gg5hb8SMHpE";
+    // DON'T COMMIT API_KEYS
+    private static final String API_KEY = "";
     private static final long NUMBER_OF_VIDEOS_RETURNED = 25;
 
     @Override
@@ -60,8 +62,9 @@ public class SearchActivity extends AppCompatActivity
 
     @Override
     public void onSearchResultSelected(SearchResult item) {
-        //TODO: Launch new activity that shows the video from this SearchResult
-        return;
+        Intent intent = new Intent(this, RecordActivity.class);
+        intent.putExtra("videoId", item.getId().getVideoId());
+        startActivity(intent);
     }
 
     private class SearchYoutubeTask extends AsyncTask<String, Integer, List<SearchResult>> {
