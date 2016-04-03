@@ -1,20 +1,15 @@
 package io.walther.virtualtouch;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubeThumbnailLoader;
-import com.google.android.youtube.player.YouTubeThumbnailView;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -26,14 +21,13 @@ import com.google.api.services.youtube.model.SearchResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class SearchActivity extends AppCompatActivity {
+public class SearchActivity extends AppCompatActivity
+        implements SearchResultFragment.OnSearchResultListInteractionListener {
 
     private static final String API_KEY = "AIzaSyBPJHkiABDrtD8TuGvLtwK3gg5hb8SMHpE";
     private static final long NUMBER_OF_VIDEOS_RETURNED = 25;
-    private List<YouTubeThumbnailLoader> loaders;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,67 +36,41 @@ public class SearchActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        loaders = new ArrayList<>();
-        YouTubeThumbnailView.OnInitializedListener listener =
-                new YouTubeThumbnailView.OnInitializedListener() {
-                    @Override
-                    public void onInitializationSuccess(YouTubeThumbnailView youTubeThumbnailView,
-                                                        YouTubeThumbnailLoader youTubeThumbnailLoader) {
-                        // hopefully they will all succeed. The video gets set later.
-                        loaders.add(youTubeThumbnailLoader);
-                    }
-
-                    @Override
-                    public void onInitializationFailure(YouTubeThumbnailView youTubeThumbnailView,
-                                                        YouTubeInitializationResult youTubeInitializationResult) {
-                        // do nothing on failure (for now).
-                    }
-                };
-
-
-        for (int i = 0; i < NUMBER_OF_VIDEOS_RETURNED; i++) {
-            LinearLayout listLayout = (LinearLayout) findViewById(R.id.resultListLayout);
-            YouTubeThumbnailView youTubeThumbnailView;
-
-            youTubeThumbnailView = new YouTubeThumbnailView(this);
-            youTubeThumbnailView.initialize(API_KEY, listener);
-            listLayout.addView(youTubeThumbnailView);
-        }
+        findViewById(R.id.searchContainer).findViewById(R.id.doSearchButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // pass the buttons parent (searchContainer) to the doSearch function
+                doSearch(v.getRootView());
+            }
+        });
     }
 
     public void doSearch(View view) {
-        String[] choices = {
-                "rc car race",
-                "trololo",
-                "animal wildlife",
-                "turnpike troubadours"
-        };
-
-        new SearchYoutubeTask(this).execute(choices[Math.round((float) Math.floor(Math.random() * 4))]);
+        EditText editText = (EditText) view.findViewById(R.id.searchQuery);
+        if (editText != null && editText.getText() != null) {
+            new SearchYoutubeTask(this).execute(editText.getText().toString());
+        }
     }
 
     private Fragment getResultListFragment() {
-        return null;
+        return getFragmentManager().findFragmentById(R.id.resultsList);
+    }
+
+    @Override
+    public void onSearchResultSelected(SearchResult item) {
+        //TODO: Launch new activity that shows the video from this SearchResult
+        return;
     }
 
     private class SearchYoutubeTask extends AsyncTask<String, Integer, List<SearchResult>> {
 
-        private final Activity activity;
+        private final SearchActivity activity;
 
         private final String LOG_TAG = SearchYoutubeTask.class.toString();
 
-        public SearchYoutubeTask(Activity activity) {
+        public SearchYoutubeTask(SearchActivity activity) {
             this.activity = activity;
         }
 
@@ -149,20 +117,17 @@ public class SearchActivity extends AppCompatActivity {
             }
 
             if (searchResponse == null) {
-                return new ArrayList<SearchResult>();
+                return new ArrayList<>();
             }
             return searchResponse.getItems();
         }
 
         protected void onPostExecute(List<SearchResult> searchResultList) {
             if (searchResultList != null) {
-                Iterator<SearchResult> results = searchResultList.iterator();
-                Iterator<YouTubeThumbnailLoader> thumbnailLoaders = loaders.iterator();
-                while (results.hasNext() && thumbnailLoaders.hasNext()) {
-                    SearchResult searchResult = results.next();
-                    searchResult.getSnippet().getTitle();
-                    thumbnailLoaders.next().setVideo(searchResult.getId().getVideoId());
-                }
+                MySearchResultRecyclerViewAdapter adapter =
+                        new MySearchResultRecyclerViewAdapter(searchResultList, activity);
+                RecyclerView view = ((RecyclerView) activity.getResultListFragment().getView());
+                view.swapAdapter(adapter, true);
             }
         }
     }

@@ -13,20 +13,34 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/doSearchButton"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/searchContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:drawableLeft="@android:drawable/ic_search_category_default"
-            android:onClick="doSearch" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/searchQuery"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/doSearchButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/ic_search_white_24dp" />
+
+        </LinearLayout>
 
         <fragment
             android:id="@+id/resultsList"
             android:name="io.walther.virtualtouch.SearchResultFragment"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            tools:layout="@layout/fragment_searchresult_list" />
 
     </LinearLayout>
 

@@ -2,21 +2,23 @@ package io.walther.virtualtouch;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import io.walther.virtualtouch.dummy.DummyContent;
-import io.walther.virtualtouch.dummy.DummyContent.SearchResult;
+import com.google.api.services.youtube.model.SearchResult;
+
+import java.util.Collections;
 
 /**
  * A fragment representing a list of Items.
  * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link OnSearchResultListInteractionListener}
  * interface.
  */
 public class SearchResultFragment extends Fragment {
@@ -25,7 +27,7 @@ public class SearchResultFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    private OnSearchResultListInteractionListener mListener;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -67,7 +69,9 @@ public class SearchResultFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MySearchResultRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(
+                    new MySearchResultRecyclerViewAdapter(
+                            Collections.<SearchResult>emptyList(), mListener));
         }
         return view;
     }
@@ -76,8 +80,8 @@ public class SearchResultFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
+        if (context instanceof OnSearchResultListInteractionListener) {
+            mListener = (OnSearchResultListInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -100,8 +104,8 @@ public class SearchResultFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnSearchResultListInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(SearchResult item);
+        void onSearchResultSelected(SearchResult item);
     }
 }
