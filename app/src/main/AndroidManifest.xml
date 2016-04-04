@@ -3,6 +3,7 @@
     package="io.walther.virtualtouch">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -29,7 +30,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.walther.virtualtouch.MainActivity" />
         </activity>
-        <activity android:name=".RecordActivity"></activity>
+        <activity android:name=".RecordActivity" />
+        <activity android:name=".PlaybackActivity"></activity>
     </application>
 
 </manifest>
