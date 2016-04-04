@@ -27,8 +27,6 @@ import java.util.List;
 public class SearchActivity extends AppCompatActivity
         implements SearchResultFragment.OnSearchResultListInteractionListener {
 
-    // DON'T COMMIT API_KEYS
-    private static final String API_KEY = "";
     private static final long NUMBER_OF_VIDEOS_RETURNED = 25;
 
     @Override
@@ -96,7 +94,7 @@ public class SearchActivity extends AppCompatActivity
                 // Define the API request for retrieving search results.
                 YouTube.Search.List search = youtube.search().list("id,snippet");
 
-                search.setKey(API_KEY);
+                search.setKey(getString(R.string.YOUTUBE_API_KEY));
                 search.setQ(queryTerm);
 
                 // Restrict the search results to only include videos. See:

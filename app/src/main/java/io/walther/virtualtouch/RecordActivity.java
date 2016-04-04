@@ -24,8 +24,6 @@ import io.walther.virtualtouch.model.ReactionEvent;
 
 public class RecordActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
-    // DON'T COMMIT API KEYS
-    private static final String API_KEY = "";
     private String videoId;
     private boolean playing;
     private long playStartTime;
@@ -44,7 +42,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         this.playing = false;
 
         YouTubePlayerFragment mYoutubePlayerFragment = new YouTubePlayerFragment();
-        mYoutubePlayerFragment.initialize(API_KEY, this);
+        mYoutubePlayerFragment.initialize(getString(R.string.YOUTUBE_API_KEY), this);
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

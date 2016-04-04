@@ -16,8 +16,6 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
 
 public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
-    // DON'T COMMIT API KEYS
-    private static final String API_KEY = "";
     private String videoId;
     private long[] reactions;
     private PlaybackTask playbackTask;
@@ -31,7 +29,7 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
         this.reactions = getIntent().getExtras().getLongArray("reactions");
 
         YouTubePlayerFragment mYoutubePlayerFragment = new YouTubePlayerFragment();
-        mYoutubePlayerFragment.initialize(API_KEY, this);
+        mYoutubePlayerFragment.initialize(getString(R.string.YOUTUBE_API_KEY), this);
 
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

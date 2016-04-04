@@ -61,9 +61,6 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        // DON'T COMMIT API KEYS
-        private static final String API_KEY = "";
-
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
@@ -94,7 +91,7 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
                             // do nothing on failure (for now).
                         }
                     };
-            youTubeThumbnailView.initialize(API_KEY, listener);
+            youTubeThumbnailView.initialize(mView.getContext().getString(R.string.YOUTUBE_API_KEY), listener);
             ((ViewGroup) view).addView(youTubeThumbnailView, 0);
 
             mIdView = (TextView) view.findViewById(R.id.id);
