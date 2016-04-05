@@ -16,30 +16,36 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:weightSum="1"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@android:drawable/sym_action_chat" />
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="160dp"/>
 
         <TextView
             android:id="@+id/appTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Large Text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:text="VirtualTouch"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_weight="0.09"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+            android:textSize="40sp"
+            android:textAlignment="center" />
 
         <Button
-            android:id="@+id/searchButton"
-            android:layout_width="wrap_content"
+            android:id="@+id/button"
+            android:layout_width="170dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:drawableLeft="@android:drawable/ic_search_category_default"
             android:onClick="launchSearchActivity"
-            android:text="Find a Video" />
+            android:text="Search Videos"
+            android:layout_gravity="center_horizontal"
+            android:nestedScrollingEnabled="true"
+            android:background="#ffffff" />
+
     </LinearLayout>
 </RelativeLayout>
