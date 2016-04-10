@@ -23,5 +23,13 @@
         android:text="Press during playback to record your reactions"
         android:layout_weight="1" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_weight="1"
+        android:text="@string/squeeze_device"
+        android:background="@color/red"
+        android:visibility="gone"></Button>
+
 
 </LinearLayout>

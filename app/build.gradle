@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "io.walther.virtualtouch"
-        minSdkVersion 15
+        minSdkVersion 18
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -28,4 +28,6 @@ dependencies {
     compile 'com.google.apis:google-api-services-youtube:v3-rev163-1.21.0'
     compile 'com.android.support:support-v4:23.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
+
+    compile 'com.punchthrough.bean.sdk:sdk:1.0.3'
 }

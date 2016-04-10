@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="hardware_device_options">
+        <item>Input Device</item>
+        <item>Output Device</item>
+        <item>Cancel</item>
+    </array>
+</resources>

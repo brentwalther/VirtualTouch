@@ -30,7 +30,7 @@
             android:layout_gravity="center"
             android:text="VirtualTouch"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_weight="0.09"
+            android:layout_marginBottom="16dp"
             android:textColor="#ffffff"
             android:textStyle="bold"
             android:textSize="40sp"
@@ -44,8 +44,50 @@
             android:onClick="launchSearchActivity"
             android:text="Search Videos"
             android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
             android:nestedScrollingEnabled="true"
             android:background="#ffffff" />
+
+
+        <LinearLayout
+            android:id="@+id/bean_connect_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/num_beans_found"
+                android:text="Searching for devices..."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#ffffff"
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/bean_connect_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:onClick="connectToBean"
+                android:text="Connect To Device"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/bean_connected"
+            android:text="Device connected!"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#ffffff"
+            android:textAlignment="center"
+            android:visibility="gone" />
+
+
+
 
     </LinearLayout>
 </RelativeLayout>

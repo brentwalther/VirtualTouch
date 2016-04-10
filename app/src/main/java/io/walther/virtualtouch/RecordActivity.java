@@ -6,7 +6,6 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,24 +16,25 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 
-import java.util.LinkedList;
+
 import java.util.List;
 
+import io.walther.virtualtouch.model.HardwareManager;
 import io.walther.virtualtouch.model.ReactionEvent;
+import io.walther.virtualtouch.util.BasicDevice;
+import io.walther.virtualtouch.util.ReactionRecorder;
 
 public class RecordActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
     private String videoId;
     private boolean playing;
-    private long playStartTime;
-    List<ReactionEvent> reactionEvents;
+    final BasicDevice basicDevice = new BasicDevice();
+    private ReactionRecorder recorder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
-
-        reactionEvents = new LinkedList<>();
 
         ViewGroup view = (ViewGroup) findViewById(android.R.id.content);
 
@@ -51,24 +51,25 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
 
         Button reactionButton = (Button) findViewById(R.id.reactionButton);
         reactionButton.setOnTouchListener(new View.OnTouchListener() {
-
-            private long startTime;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        Log.d("BRENTBRENT", "Started action at: " + ((event.getEventTime() - playStartTime) / 1000.0));
-                        startTime = event.getEventTime() - playStartTime;
+                        basicDevice.setIsReacting(true);
                         break;
                     case MotionEvent.ACTION_UP:
-                        Log.d("BRENTBRENT", "Ended action at: " + ((event.getEventTime() - playStartTime) / 1000.0));
-                        long endTime = event.getEventTime() - playStartTime;
-                        reactionEvents.add(new ReactionEvent(startTime, endTime));
+                        basicDevice.setIsReacting(false);
                         break;
                 }
                 return false;
             }
         });
+
+        recorder = new ReactionRecorder(basicDevice);
+        if (HardwareManager.getInstance().getInputDevice() != null) {
+            recorder = new ReactionRecorder(HardwareManager.getInstance().getInputDevice());
+        }
+        new Thread(recorder).start();
     }
 
     @Override
@@ -85,7 +86,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
     @Override
     public void onPlaying() {
         this.playing = true;
-        this.playStartTime = SystemClock.uptimeMillis();
+        recorder.setEpoch(SystemClock.uptimeMillis());
     }
 
     @Override
@@ -99,6 +100,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
             return;
         }
         this.playing = false;
+        recorder.stopRecording();
         Intent intent = new Intent(this, PlaybackActivity.class);
         intent.putExtra("videoId", videoId);
         intent.putExtra("reactions", serializeReactionEvents());
@@ -116,11 +118,12 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
     }
 
     private long[] serializeReactionEvents() {
+        List<ReactionEvent> reactionEvents = recorder.getReactionEvents();
         long[] reactions = new long[reactionEvents.size() * 2];
-        for(int i = 0; i < reactionEvents.size(); i++) {
+        for (int i = 0; i < reactionEvents.size(); i++) {
             ReactionEvent e = reactionEvents.get(i);
-            reactions[i*2] = e.getStartTime();
-            reactions[i*2+1] = e.getEndTime();
+            reactions[i * 2] = e.getStartTime();
+            reactions[i * 2 + 1] = e.getEndTime();
         }
         return reactions;
     }
