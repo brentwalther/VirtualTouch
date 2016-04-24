@@ -1,10 +1,14 @@
 package io.walther.virtualtouch;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +21,9 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import io.walther.virtualtouch.model.HardwareManager;
@@ -101,6 +108,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         }
         this.playing = false;
         recorder.stopRecording();
+        askToSave();
         Intent intent = new Intent(this, PlaybackActivity.class);
         intent.putExtra("videoId", videoId);
         intent.putExtra("reactions", serializeReactionEvents());
@@ -117,6 +125,53 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
 
     }
 
+    public void askToSave(){
+        new AlertDialog.Builder(this)
+                .setTitle("Save Reaction")
+                .setMessage("Would you like to save the recording?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int which){
+                        //save recording
+                        saveReaction();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //continue with playback
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    //Experimental, don't know if it works. Not fully tested yet
+    //TODO: Have to create function to ask user if they want to save file
+    //      If they save, ask user to name file
+    public void saveReaction(){
+        String reactionFileName = videoId;
+        String[] reactions= reactionsToStrings(serializeReactionEvents());
+
+        FileOutputStream fos = null;
+        try {
+            fos = openFileOutput(reactionFileName, Context.MODE_PRIVATE);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        for (int i = 0; i < reactions.length; i++){
+            String reaction = reactions[i] + ",";
+            try {
+                fos.write(reaction.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private long[] serializeReactionEvents() {
         List<ReactionEvent> reactionEvents = recorder.getReactionEvents();
         long[] reactions = new long[reactionEvents.size() * 2];
@@ -127,4 +182,15 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         }
         return reactions;
     }
+
+    private String[] reactionsToStrings(long[] reactions) {
+        int length = reactions.length;
+        String reactionsArray[] = new String[length];
+        for (int i = 0; i < reactions.length; i++) {
+            reactionsArray[i] = String.valueOf(reactions[i]);
+        }
+        return reactionsArray;
+    }
+
+
 }
