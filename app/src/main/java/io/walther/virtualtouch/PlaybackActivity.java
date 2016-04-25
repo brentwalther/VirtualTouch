@@ -57,6 +57,9 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
 
     @Override
     public void onPlaying() {
+        if (this.playbackTask != null) {
+            this.playbackTask.stopRunning();
+        }
         this.playbackTask = new PlaybackTask(getApplicationContext(), reactions);
         new Thread(this.playbackTask).start();
     }
@@ -112,6 +115,7 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
 
     public interface Reactor {
         public void react(long time);
+        public void reset();
     }
 
     private class VibratorReactor implements Reactor {
@@ -125,6 +129,7 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
         public void react(long time) {
             vibrator.vibrate(time);
         }
+        public void reset() { /* do nothing */ }
     }
 
     private class PlaybackTask implements Runnable {
@@ -151,14 +156,12 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
                 long timeNow = SystemClock.uptimeMillis();
                 long elapsedTime = timeNow - startTime;
                 if (elapsedTime > reactions[i]) {
-                    try {
-                        reactor.react(reactions[i + 1] - reactions[i]);
-                    } catch (Exception e) {
-                        Log.d("BRENTBRENT", e.toString());
-                    }
+                    long time = reactions[i + 1] - reactions[i];
+                    reactor.react(time);
                     i += 2;
                 }
             }
+            reactor.reset();
         }
 
         public void stopRunning() {

@@ -133,16 +133,8 @@ public class HardwareManager {
 
     public class OutputDevice extends Device implements ReactionRecorder.ReactionDevice, PlaybackActivity.Reactor {
 
-        private int pressure;
-        private Bean bean;
-
         public OutputDevice(Context context, Bean bean) {
             super(context, bean);
-            pressure = 0;
-        }
-
-        public int getSqueezePressure() {
-            return pressure;
         }
 
         @Override
@@ -158,23 +150,27 @@ public class HardwareManager {
         @Override
         public void react(long time){
             bean.setScratchData(ScratchBank.BANK_1, String.valueOf("1500"));
-            Runnable waiter = new OutputDeviceResetter(time, bean);
+            new Thread(new OutputDeviceResetter(time, this)).start();
+        }
+
+        public void reset() {
+            bean.setScratchData(ScratchBank.BANK_1, String.valueOf("0"));
         }
     }
 
     private class OutputDeviceResetter implements Runnable {
 
         private long timeout;
-        private Bean bean;
+        private OutputDevice device;
 
-        public OutputDeviceResetter(long timeout, Bean bean) {
+        public OutputDeviceResetter(long timeout, OutputDevice device) {
             this.timeout = SystemClock.uptimeMillis() + timeout;
-            this.bean = bean;
+            this.device = device;
         }
 
         public void run() {
             while(SystemClock.uptimeMillis() < this.timeout) { /* wait patiently */ }
-            bean.setScratchData(ScratchBank.BANK_1, String.valueOf("0"));
+            device.reset();
         }
     }
 
