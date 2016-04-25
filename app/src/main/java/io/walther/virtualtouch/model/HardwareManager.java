@@ -1,6 +1,7 @@
 package io.walther.virtualtouch.model;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.renderscript.ScriptGroup;
 import android.util.Log;
 
@@ -11,6 +12,7 @@ import com.punchthrough.bean.sdk.message.ScratchBank;
 
 import java.nio.charset.Charset;
 
+import io.walther.virtualtouch.PlaybackActivity;
 import io.walther.virtualtouch.util.ReactionRecorder;
 
 /**
@@ -20,7 +22,7 @@ public class HardwareManager {
 
     private static HardwareManager singleton;
     private InputDevice inputDevice;
-    private Device outputDevice;
+    private OutputDevice outputDevice;
 
     private HardwareManager() {
         inputDevice = null;
@@ -32,11 +34,11 @@ public class HardwareManager {
         Log.d("BRENTBRENT", "User claimed it was an: " + type.toString());
 
         if (type == DeviceType.INPUT_DEVICE) {
-            inputDevice = new InputDevice();
+            inputDevice = new InputDevice(context, bean);
             inputDevice.attemptConnect();
-            bean.connect(context, inputDevice);
         } else if (type == DeviceType.OUTPUT_DEVICE) {
-            outputDevice = null;
+            outputDevice = new OutputDevice(context, bean);
+            outputDevice.attemptConnect();
         }
     }
 
@@ -44,7 +46,7 @@ public class HardwareManager {
         return inputDevice;
     }
 
-    public Device getOutputDevice() {
+    public OutputDevice getOutputDevice() {
         return outputDevice;
     }
 
@@ -83,8 +85,8 @@ public class HardwareManager {
 
         private int pressure;
 
-        public InputDevice() {
-            super();
+        public InputDevice(Context context, Bean bean) {
+            super(context, bean);
             calibrated = false;
             calibrationValues = new int[NUM_CALIBRATION_VALUES];
             calibrationValueIndex = 0;
@@ -129,14 +131,65 @@ public class HardwareManager {
         }
     }
 
+    public class OutputDevice extends Device implements ReactionRecorder.ReactionDevice, PlaybackActivity.Reactor {
+
+        private int pressure;
+        private Bean bean;
+
+        public OutputDevice(Context context, Bean bean) {
+            super(context, bean);
+            pressure = 0;
+        }
+
+        public int getSqueezePressure() {
+            return pressure;
+        }
+
+        @Override
+        public DeviceType getDeviceType() {
+            return DeviceType.OUTPUT_DEVICE;
+        }
+
+        @Override
+        public boolean isReacting() {
+            return false;
+        }
+
+        @Override
+        public void react(long time){
+            bean.setScratchData(ScratchBank.BANK_1, String.valueOf("1500"));
+            Runnable waiter = new OutputDeviceResetter(time, bean);
+        }
+    }
+
+    private class OutputDeviceResetter implements Runnable {
+
+        private long timeout;
+        private Bean bean;
+
+        public OutputDeviceResetter(long timeout, Bean bean) {
+            this.timeout = SystemClock.uptimeMillis() + timeout;
+            this.bean = bean;
+        }
+
+        public void run() {
+            while(SystemClock.uptimeMillis() < this.timeout) { /* wait patiently */ }
+            bean.setScratchData(ScratchBank.BANK_1, String.valueOf("0"));
+        }
+    }
+
     public class Device implements BeanListener {
 
-        private boolean deviceConnected;
-        private boolean isAttemptingConnect;
+        protected Bean bean;
+        protected boolean deviceConnected;
+        protected boolean isAttemptingConnect;
+        protected Context context;
 
-        public Device() {
+        public Device(Context context, Bean bean) {
             deviceConnected = false;
             isAttemptingConnect = false;
+            this.bean = bean;
+            this.context = context;
         }
 
         public boolean isConnected() {
@@ -149,6 +202,7 @@ public class HardwareManager {
 
         public void attemptConnect() {
             isAttemptingConnect = true;
+            bean.connect(context, this);
         }
 
         @Override
@@ -166,6 +220,7 @@ public class HardwareManager {
 
         @Override
         public void onDisconnected() {
+            Log.d("BRENTBRENT", "Bean disconnected for no reason! :(");
             deviceConnected = false;
         }
 

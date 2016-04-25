@@ -8,11 +8,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
+
+import io.walther.virtualtouch.model.HardwareManager;
 
 public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
@@ -75,14 +78,35 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
 
     }
 
+    public interface Reactor {
+        public void react(long time);
+    }
+
+    private class VibratorReactor implements Reactor {
+
+        private Vibrator vibrator;
+
+        public VibratorReactor(Vibrator vibrator) {
+            this.vibrator = vibrator;
+        }
+
+        public void react(long time) {
+            vibrator.vibrate(time);
+        }
+    }
+
     private class PlaybackTask implements Runnable {
 
         private final long[] reactions;
-        private final Vibrator vibrator;
+        private final Reactor reactor;
         private boolean stillRunning;
 
         public PlaybackTask(Context context, long[] reactions) {
-            this.vibrator = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
+            if(HardwareManager.getInstance().getOutputDevice()!=null){
+                this.reactor = HardwareManager.getInstance().getOutputDevice();
+            } else {
+                this.reactor = new VibratorReactor((Vibrator) context.getSystemService(context.VIBRATOR_SERVICE));
+            }
             this.reactions = reactions;
             this.stillRunning = true;
         }
@@ -95,7 +119,11 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
                 long timeNow = SystemClock.uptimeMillis();
                 long elapsedTime = timeNow - startTime;
                 if (elapsedTime > reactions[i]) {
-                    vibrator.vibrate(reactions[i+1] - reactions[i]);
+                    try {
+                        reactor.react(reactions[i + 1] - reactions[i]);
+                    } catch (Exception e) {
+                        Log.d("BRENTBRENT", e.toString());
+                    }
                     i += 2;
                 }
             }
