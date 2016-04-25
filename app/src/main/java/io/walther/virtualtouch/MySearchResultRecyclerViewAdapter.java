@@ -64,6 +64,7 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
+        public final TextView mChannelView;
         public SearchResult mItem;
         private YouTubeThumbnailLoader loader;
 
@@ -71,8 +72,7 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
             super(view);
             mView = view;
 
-            YouTubeThumbnailView youTubeThumbnailView;
-            youTubeThumbnailView = new YouTubeThumbnailView(view.getContext());
+            YouTubeThumbnailView youTubeThumbnailView = (YouTubeThumbnailView)view.findViewById(R.id.youtubethumbnailview);
             YouTubeThumbnailView.OnInitializedListener listener =
                     new YouTubeThumbnailView.OnInitializedListener() {
                         @Override
@@ -92,15 +92,19 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
                         }
                     };
             youTubeThumbnailView.initialize(mView.getContext().getString(R.string.YOUTUBE_API_KEY), listener);
-            ((ViewGroup) view).addView(youTubeThumbnailView, 0);
 
             mIdView = (TextView) view.findViewById(R.id.id);
             mContentView = (TextView) view.findViewById(R.id.content);
+            mChannelView = (TextView) view.findViewById(R.id.channel);
         }
+
 
         public void setItem(SearchResult mItem) {
             this.mItem = mItem;
             mContentView.setText(mItem.getSnippet().getTitle());
+            mChannelView.setText(mItem.getSnippet().getChannelTitle());
+
+
             if (loader != null) {
                 loader.setVideo(mItem.getId().getVideoId());
             }

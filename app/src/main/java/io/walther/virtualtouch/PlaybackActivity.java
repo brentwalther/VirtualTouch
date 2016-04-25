@@ -16,6 +16,9 @@ import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 
 import io.walther.virtualtouch.model.HardwareManager;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
@@ -76,6 +79,35 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
     @Override
     public void onSeekTo(int i) {
 
+    }
+    //The way files are loaded is that the filename is their video id
+    //have to change by allowing user to select a file(reaction)
+    public void loadSavedReaction(){
+        FileInputStream fis = null;
+        try {
+            fis = openFileInput(videoId);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        StringBuffer fileContent = new StringBuffer("");
+        String reactionString;
+        byte[] buffer = new byte[1024];
+
+        try {
+            int n;
+            while ((n = fis.read(buffer)) != -1) {
+                fileContent.append(new String(buffer, 0, n));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        reactionString = String.valueOf(fileContent);
+        String[] stringReactionArray = reactionString.split(",");
+        long reactionArray[] = new long[stringReactionArray.length];
+        for(int i = 0; i < stringReactionArray.length; i++){
+            reactionArray[i] = Long.valueOf(stringReactionArray[i]);
+        }
+        this.reactions = reactionArray;
     }
 
     public interface Reactor {
