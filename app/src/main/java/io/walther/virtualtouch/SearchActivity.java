@@ -62,6 +62,8 @@ public class SearchActivity extends AppCompatActivity
     public void onSearchResultSelected(SearchResult item) {
         Intent intent = new Intent(this, RecordActivity.class);
         intent.putExtra("videoId", item.getId().getVideoId());
+        intent.putExtra("videoTitle", item.getSnippet().getTitle());
+        intent.putExtra("videoChannel", item.getSnippet().getChannelTitle());
         startActivity(intent);
     }
 

@@ -14,7 +14,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -34,6 +36,10 @@ import io.walther.virtualtouch.util.ReactionRecorder;
 public class RecordActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
     private String videoId;
+    private String videoTitle;
+    private String videoChannel;
+    public TextView mTitleView;
+    public TextView mChannelView;
     private boolean playing;
     final BasicDevice basicDevice = new BasicDevice();
     private ReactionRecorder recorder;
@@ -43,8 +49,18 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
+        ViewGroup view = (ViewGroup) findViewById(android.R.id.content);
+
         this.videoId = getIntent().getExtras().getString("videoId");
+        this.videoTitle = getIntent().getExtras().getString("videoTitle");
+        this.videoChannel = getIntent().getExtras().getString("videoChannel");
         this.playing = false;
+
+        mTitleView = (TextView) view.findViewById(R.id.title);
+        mChannelView = (TextView) view.findViewById(R.id.channel);
+
+        mTitleView.setText(videoTitle);
+        mChannelView.setText(videoChannel);
 
         YouTubePlayerFragment mYoutubePlayerFragment = new YouTubePlayerFragment();
         mYoutubePlayerFragment.initialize(getString(R.string.YOUTUBE_API_KEY), this);
@@ -54,6 +70,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         fragmentTransaction.replace(R.id.fragment_youtube_player, mYoutubePlayerFragment);
         fragmentTransaction.commit();
 
+        final LinearLayout reactionButtonWrapper = (LinearLayout) findViewById(R.id.reactionButtonWrapper);
         final Button reactionButton = (Button) findViewById(R.id.reactionButton);
         final Button inputDeviceButton = (Button) findViewById(R.id.inputDeviceButton);
         reactionButton.setOnTouchListener(new View.OnTouchListener() {
@@ -84,7 +101,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
                     });
                 }
             });
-            reactionButton.setVisibility(View.GONE);
+            reactionButtonWrapper.setVisibility(View.GONE);
             inputDeviceButton.setVisibility(View.VISIBLE);
         } else {
             recorder = new ReactionRecorder(basicDevice);
