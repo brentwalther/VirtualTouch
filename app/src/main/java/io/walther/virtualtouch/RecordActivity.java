@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
@@ -34,6 +35,10 @@ import io.walther.virtualtouch.util.ReactionRecorder;
 public class RecordActivity extends Activity implements YouTubePlayer.OnInitializedListener, YouTubePlayer.PlaybackEventListener {
 
     private String videoId;
+    private String videoTitle;
+    private String videoChannel;
+    public TextView mTitleView;
+    public TextView mChannelView;
     private boolean playing;
     final BasicDevice basicDevice = new BasicDevice();
     private ReactionRecorder recorder;
@@ -46,7 +51,15 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         ViewGroup view = (ViewGroup) findViewById(android.R.id.content);
 
         this.videoId = getIntent().getExtras().getString("videoId");
+        this.videoTitle = getIntent().getExtras().getString("videoTitle");
+        this.videoChannel = getIntent().getExtras().getString("videoChannel");
         this.playing = false;
+
+        mTitleView = (TextView) view.findViewById(R.id.title);
+        mChannelView = (TextView) view.findViewById(R.id.channel);
+
+        mTitleView.setText(videoTitle);
+        mChannelView.setText(videoChannel);
 
         YouTubePlayerFragment mYoutubePlayerFragment = new YouTubePlayerFragment();
         mYoutubePlayerFragment.initialize(getString(R.string.YOUTUBE_API_KEY), this);
