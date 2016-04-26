@@ -15,14 +15,21 @@ import io.walther.virtualtouch.model.ReactionEvent;
  */
 public class ReactionRecorder implements Runnable {
 
+    private boolean paused;
     private boolean isRecording;
     private long startTime;
     private long epochTime;
 
     List<ReactionEvent> reactionEvents;
+    List<ReactionCallback> reactionCallbacks;
+    private long pauseTime;
 
     public interface ReactionDevice {
         public boolean isReacting();
+    }
+
+    public interface ReactionCallback {
+        public void isReacting(boolean isReacting);
     }
 
     private final ReactionDevice device;
@@ -30,11 +37,29 @@ public class ReactionRecorder implements Runnable {
     public ReactionRecorder(ReactionDevice device) {
         this.device = device;
         this.reactionEvents = new LinkedList<>();
+        this.reactionCallbacks = new LinkedList<>();
         this.isRecording = false;
+        this.paused = true;
+        this.pauseTime = -1;
+    }
+
+    public void addReactionCallback(ReactionCallback reactionCallback) {
+        reactionCallbacks.add(reactionCallback);
+    }
+
+    public void pause() {
+        this.paused = true;
+        this.pauseTime = SystemClock.uptimeMillis();
     }
 
     public void setEpoch(long epochTime) {
-        this.epochTime = epochTime;
+        if (pauseTime != -1) {
+            long timeToAdd = epochTime - pauseTime;
+            this.epochTime += timeToAdd;
+        } else {
+            this.epochTime = epochTime;
+        }
+        this.paused = false;
     }
 
     @Override
@@ -42,6 +67,7 @@ public class ReactionRecorder implements Runnable {
         isRecording = true;
         boolean isReacting = false;
         while(isRecording) {
+            while(isRecording && paused) { /* noop; wait to be unpaused */ }
             long eventTime = SystemClock.uptimeMillis();
             if (device.isReacting() && !isReacting) {
                 Log.d("BRENTBRENT", "Started action at: " + ((eventTime - epochTime) / 1000.0));
@@ -52,6 +78,10 @@ public class ReactionRecorder implements Runnable {
                 long endTime = eventTime - epochTime;
                 reactionEvents.add(new ReactionEvent(startTime, endTime));
                 isReacting = false;
+            }
+
+            for (ReactionCallback callback : reactionCallbacks) {
+                callback.isReacting(isReacting);
             }
         }
     }

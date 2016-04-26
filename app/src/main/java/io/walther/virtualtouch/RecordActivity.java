@@ -43,8 +43,6 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
 
-        ViewGroup view = (ViewGroup) findViewById(android.R.id.content);
-
         this.videoId = getIntent().getExtras().getString("videoId");
         this.playing = false;
 
@@ -56,7 +54,8 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         fragmentTransaction.replace(R.id.fragment_youtube_player, mYoutubePlayerFragment);
         fragmentTransaction.commit();
 
-        Button reactionButton = (Button) findViewById(R.id.reactionButton);
+        final Button reactionButton = (Button) findViewById(R.id.reactionButton);
+        final Button inputDeviceButton = (Button) findViewById(R.id.inputDeviceButton);
         reactionButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -72,15 +71,29 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
             }
         });
 
-        recorder = new ReactionRecorder(basicDevice);
         if (HardwareManager.getInstance().getInputDevice() != null) {
             recorder = new ReactionRecorder(HardwareManager.getInstance().getInputDevice());
+            final Activity activity = this;
+            recorder.addReactionCallback(new ReactionRecorder.ReactionCallback() {
+                @Override
+                public void isReacting(final boolean isReacting) {
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            inputDeviceButton.setBackgroundColor(isReacting ? getResources().getColor(R.color.softGreen) : 0);
+                        }
+                    });
+                }
+            });
+            reactionButton.setVisibility(View.GONE);
+            inputDeviceButton.setVisibility(View.VISIBLE);
+        } else {
+            recorder = new ReactionRecorder(basicDevice);
         }
         new Thread(recorder).start();
     }
 
     @Override
-    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
+    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
         youTubePlayer.loadVideo(videoId);
         youTubePlayer.setPlaybackEventListener(this);
     }
@@ -92,21 +105,22 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
 
     @Override
     public void onPlaying() {
-        this.playing = true;
+        playing = true;
         recorder.setEpoch(SystemClock.uptimeMillis());
     }
 
     @Override
     public void onPaused() {
-        this.playing = false;
+        playing = false;
+        recorder.pause();
     }
 
     @Override
     public void onStopped() {
-        if (this.playing == false) {
+        if (!playing) {
             return;
         }
-        this.playing = false;
+        playing = false;
         recorder.stopRecording();
         askToSave();
         Intent intent = new Intent(this, PlaybackActivity.class);
