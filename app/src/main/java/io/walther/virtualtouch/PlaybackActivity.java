@@ -8,12 +8,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerFragment;
 
+import io.walther.virtualtouch.model.HardwareManager;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -55,6 +57,9 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
 
     @Override
     public void onPlaying() {
+        if (this.playbackTask != null) {
+            this.playbackTask.stopRunning();
+        }
         this.playbackTask = new PlaybackTask(getApplicationContext(), reactions);
         new Thread(this.playbackTask).start();
     }
@@ -109,14 +114,37 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
         this.reactions = reactionArray;
     }
 
+    public interface Reactor {
+        public void react(long time);
+        public void reset();
+    }
+
+    private class VibratorReactor implements Reactor {
+
+        private Vibrator vibrator;
+
+        public VibratorReactor(Vibrator vibrator) {
+            this.vibrator = vibrator;
+        }
+
+        public void react(long time) {
+            vibrator.vibrate(time);
+        }
+        public void reset() { /* do nothing */ }
+    }
+
     private class PlaybackTask implements Runnable {
 
         private final long[] reactions;
-        private final Vibrator vibrator;
+        private final Reactor reactor;
         private boolean stillRunning;
 
         public PlaybackTask(Context context, long[] reactions) {
-            this.vibrator = (Vibrator) context.getSystemService(context.VIBRATOR_SERVICE);
+            if(HardwareManager.getInstance().getOutputDevice()!=null){
+                this.reactor = HardwareManager.getInstance().getOutputDevice();
+            } else {
+                this.reactor = new VibratorReactor((Vibrator) context.getSystemService(context.VIBRATOR_SERVICE));
+            }
             this.reactions = reactions;
             this.stillRunning = true;
         }
@@ -129,10 +157,12 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
                 long timeNow = SystemClock.uptimeMillis();
                 long elapsedTime = timeNow - startTime;
                 if (elapsedTime > reactions[i]) {
-                    vibrator.vibrate(reactions[i+1] - reactions[i]);
+                    long time = reactions[i + 1] - reactions[i];
+                    reactor.react(time);
                     i += 2;
                 }
             }
+            reactor.reset();
         }
 
         public void stopRunning() {
