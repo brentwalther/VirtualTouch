@@ -80,6 +80,7 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
     }
     //The way files are loaded is that the filename is their video id
     //have to change by allowing user to select a file(reaction)
+    //FUNCTION CURRENTLY NOT USED
     public void loadSavedReaction(){
         FileInputStream fis = null;
         try {
