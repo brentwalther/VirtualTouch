@@ -10,10 +10,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubeInitializationResult;
@@ -109,10 +111,6 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         this.playing = false;
         recorder.stopRecording();
         askToSave();
-        Intent intent = new Intent(this, PlaybackActivity.class);
-        intent.putExtra("videoId", videoId);
-        intent.putExtra("reactions", serializeReactionEvents());
-        startActivity(intent);
     }
 
     @Override
@@ -129,8 +127,8 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         new AlertDialog.Builder(this)
                 .setTitle("Save Reaction")
                 .setMessage("Would you like to save the recording?")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int which){
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                         //save recording
                         saveReaction();
                     }
@@ -138,6 +136,7 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //continue with playback
+                        createNewPlaybackActivity();
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -151,6 +150,26 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         String reactionFileName = videoId;
         String[] reactions= reactionsToStrings(serializeReactionEvents());
 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Name your file");
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String filename = input.getText().toString();
+                createNewPlaybackActivity();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
         FileOutputStream fos = null;
         try {
             fos = openFileOutput(reactionFileName, Context.MODE_PRIVATE);
@@ -172,6 +191,14 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         }
     }
 
+    public void createNewPlaybackActivity(){
+        final Activity activity = this;
+        Intent intent = new Intent(activity, PlaybackActivity.class);
+        intent.putExtra("videoId", videoId);
+        intent.putExtra("reactions", serializeReactionEvents());
+        startActivity(intent);
+    }
+
     private long[] serializeReactionEvents() {
         List<ReactionEvent> reactionEvents = recorder.getReactionEvents();
         long[] reactions = new long[reactionEvents.size() * 2];
@@ -191,6 +218,5 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         }
         return reactionsArray;
     }
-
 
 }
