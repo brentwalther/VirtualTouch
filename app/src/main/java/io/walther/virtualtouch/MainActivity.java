@@ -91,6 +91,11 @@ public class MainActivity extends AppCompatActivity implements DeviceTypeDialogF
         startActivity(intent);
     }
 
+    public void launchLoadActivity(View view) {
+        Intent intent = new Intent(this, LoadActivity.class);
+        startActivity(intent);
+    }
+
     public void connectToBean(View view) {
         Bundle bundle = new Bundle();
         bundle.putString("device_name", beans.get(0).getDevice().getName());

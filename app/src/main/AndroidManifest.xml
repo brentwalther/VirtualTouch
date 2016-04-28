@@ -32,6 +32,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.walther.virtualtouch.MainActivity" />
         </activity>
+        <activity
+            android:name=".LoadActivity"
+            android:label=""
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.walther.virtualtouch.MainActivity" />
+        </activity>
         <activity android:name=".RecordActivity" />
         <activity android:name=".PlaybackActivity"></activity>
     </application>
