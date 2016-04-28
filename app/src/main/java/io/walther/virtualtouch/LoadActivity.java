@@ -17,9 +17,12 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
-import com.google.api.services.youtube.model.SearchListResponse;
-import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoListResponse;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,41 +36,45 @@ public class LoadActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.loadtoolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        new LoadYoutubeTask(this).execute();
+/*
         findViewById(R.id.loadContainer).findViewById(R.id.doLoadButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // pass the buttons parent (loadContainer) to the doLoad function
                 doLoad(v.getRootView());
             }
-        });
+        });*/
     }
 
+    /*
     public void doLoad(View view) {
         EditText editText = (EditText) view.findViewById(R.id.loadQuery);
         if (editText != null && editText.getText() != null) {
             new LoadYoutubeTask(this).execute(editText.getText().toString());
         }
     }
+    */
 
     private Fragment getResultListFragment() {
-        return getFragmentManager().findFragmentById(R.id.resultsList);
+        return getFragmentManager().findFragmentById(R.id.loadresultsList);
     }
 
     @Override
-    public void onLoadResultSelected(SearchResult item) {
-        Intent intent = new Intent(this, RecordActivity.class);
-        intent.putExtra("videoId", item.getId().getVideoId());
-        intent.putExtra("videoTitle", item.getSnippet().getTitle());
-        intent.putExtra("videoChannel", item.getSnippet().getChannelTitle());
+    public void onLoadResultSelected(Video item) {
+        Intent intent = new Intent(this, PlaybackActivity.class);
+        String selected_video = item.getId();
+        intent.putExtra("videoId", selected_video);
+        intent.putExtra("reactions", getReaction(selected_video));
         startActivity(intent);
     }
 
-    private class LoadYoutubeTask extends AsyncTask<String, Integer, List<SearchResult>> {
+    private class LoadYoutubeTask extends AsyncTask<String, Integer, List<Video>> {
 
         private final LoadActivity activity;
 
@@ -77,9 +84,9 @@ public class LoadActivity extends AppCompatActivity
             this.activity = activity;
         }
 
-        protected List<SearchResult> doInBackground(String... strings) {
+        protected List<Video> doInBackground(String... strings) {
             YouTube youtube = null;
-            SearchListResponse loadResponse = null;
+            VideoListResponse loadResponse = null;
             try {
                 // This object is used to make YouTube Data API requests. The last
                 // argument is required, but since we don't need anything
@@ -91,8 +98,9 @@ public class LoadActivity extends AppCompatActivity
                 }).setApplicationName("virtual-touch-android").build();
 
                 // Prompt the user to enter a query term.
-                String queryTerm = strings[0];
+                //String queryTerm = strings[0];
 
+                /*
                 // Define the API request for retrieving load results.
                 YouTube.Search.List load = youtube.search().list("id,snippet");
 
@@ -107,9 +115,16 @@ public class LoadActivity extends AppCompatActivity
                 // application uses.
                 load.setFields("items(id/videoId,snippet/title,snippet/thumbnails/default/url,snippet/channelId,snippet/channelTitle)");
                 load.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
+                */
+
+                String videoId = getIds();
+                YouTube.Videos.List listVideosRequest = youtube.videos().list("snippet, recordingDetails");
+                listVideosRequest.setId(videoId);
+                listVideosRequest.setKey(getString(R.string.YOUTUBE_API_KEY));
+                listVideosRequest.setFields("items(id,snippet/title,snippet/thumbnails/default/url,snippet/channelId,snippet/channelTitle)");
 
                 // Call the API and print results.
-                loadResponse = load.execute();
+                loadResponse = listVideosRequest.execute();
             } catch (GoogleJsonResponseException e) {
                 Log.e(LOG_TAG, "There was a service error: " + e.getDetails().getCode() + " : "
                         + e.getDetails().getMessage());
@@ -125,7 +140,7 @@ public class LoadActivity extends AppCompatActivity
             return loadResponse.getItems();
         }
 
-        protected void onPostExecute(List<SearchResult> loadResultList) {
+        protected void onPostExecute(List<Video> loadResultList) {
             if (loadResultList != null) {
                 MyLoadResultRecyclerViewAdapter adapter =
                         new MyLoadResultRecyclerViewAdapter(loadResultList, activity);
@@ -133,5 +148,48 @@ public class LoadActivity extends AppCompatActivity
                 view.swapAdapter(adapter, true);
             }
         }
+    }
+
+    private String getIds(){
+        String identifiers = "";
+        File directory = getFilesDir();
+        String[] filenames = directory.list();
+        for (int i = 0; i < filenames.length - 1; i++){
+            identifiers += filenames[i] + ",";
+        }
+        identifiers += filenames[filenames.length - 1];
+
+        return identifiers;
+    }
+
+    public long[] getReaction(String video_id){
+        FileInputStream fis = null;
+        try {
+            fis = openFileInput(video_id);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        StringBuffer fileContent = new StringBuffer("");
+        String reactionString;
+        byte[] buffer = new byte[1024];
+
+        try {
+            int n;
+            while ((n = fis.read(buffer)) != -1) {
+                fileContent.append(new String(buffer, 0, n));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        reactionString = String.valueOf(fileContent);
+        String[] stringReactionArray = reactionString.split(",");
+        // The first value is the saved name of the reaction,
+        // so we account for it by altering our computations by 1
+        long reactionArray[] = new long[stringReactionArray.length - 1];
+        for(int i = 1; i < stringReactionArray.length; i++){
+            reactionArray[i - 1] = Long.valueOf(stringReactionArray[i]);
+        }
+
+        return reactionArray;
     }
 }

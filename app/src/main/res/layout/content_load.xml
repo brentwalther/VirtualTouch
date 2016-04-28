@@ -14,7 +14,7 @@
         android:orientation="vertical">
 
         <fragment
-            android:id="@+id/resultsList"
+            android:id="@+id/loadresultsList"
             android:name="io.walther.virtualtouch.LoadResultFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
