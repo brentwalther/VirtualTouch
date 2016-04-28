@@ -9,23 +9,23 @@ import android.widget.TextView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubeThumbnailLoader;
 import com.google.android.youtube.player.YouTubeThumbnailView;
-import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
 
 import java.util.List;
 
 import io.walther.virtualtouch.LoadResultFragment.OnLoadResultListInteractionListener;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link SearchResult} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link Video} and makes a call to the
  * specified {@link OnLoadResultListInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyLoadResultRecyclerViewAdapter extends RecyclerView.Adapter<MyLoadResultRecyclerViewAdapter.ViewHolder> {
 
-    private final List<SearchResult> mValues;
+    private final List<Video> mValues;
     private final OnLoadResultListInteractionListener mListener;
 
-    public MyLoadResultRecyclerViewAdapter(List<SearchResult> items,
+    public MyLoadResultRecyclerViewAdapter(List<Video> items,
                                            OnLoadResultListInteractionListener listener) {
         mValues = items;
         mListener = listener;
@@ -65,14 +65,14 @@ public class MyLoadResultRecyclerViewAdapter extends RecyclerView.Adapter<MyLoad
         public final TextView mIdView;
         public final TextView mContentView;
         public final TextView mChannelView;
-        public SearchResult mItem;
+        public Video mItem;
         private YouTubeThumbnailLoader loader;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
 
-            YouTubeThumbnailView youTubeThumbnailView = (YouTubeThumbnailView)view.findViewById(R.id.youtubethumbnailview);
+            YouTubeThumbnailView youTubeThumbnailView = (YouTubeThumbnailView)view.findViewById(R.id.youtubeloadthumbnailview);
             YouTubeThumbnailView.OnInitializedListener listener =
                     new YouTubeThumbnailView.OnInitializedListener() {
                         @Override
@@ -81,7 +81,7 @@ public class MyLoadResultRecyclerViewAdapter extends RecyclerView.Adapter<MyLoad
                             // hopefully they will all succeed. The video gets set later.
                             loader = youTubeThumbnailLoader;
                             if (mItem != null) {
-                                loader.setVideo(mItem.getId().getVideoId());
+                                loader.setVideo(mItem.getId());
                             }
                             loader.release();
                         }
@@ -100,14 +100,14 @@ public class MyLoadResultRecyclerViewAdapter extends RecyclerView.Adapter<MyLoad
         }
 
 
-        public void setItem(SearchResult mItem) {
+        public void setItem(Video mItem) {
             this.mItem = mItem;
             mContentView.setText(mItem.getSnippet().getTitle());
             mChannelView.setText(mItem.getSnippet().getChannelTitle());
 
 
             if (loader != null) {
-                loader.setVideo(mItem.getId().getVideoId());
+                loader.setVideo(mItem.getId());
             }
         }
 

@@ -5,7 +5,7 @@
     android:orientation="horizontal">
 
     <com.google.android.youtube.player.YouTubeThumbnailView
-        android:id="@+id/youtubethumbnailview"
+        android:id="@+id/youtubeloadthumbnailview"
         android:layout_width="170dp"
         android:layout_height="match_parent"
         android:padding="5dp" />

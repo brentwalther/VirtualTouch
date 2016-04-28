@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Video;
 
 import java.util.Collections;
 
@@ -70,7 +70,7 @@ public class LoadResultFragment extends Fragment {
             }
             recyclerView.setAdapter(
                     new MyLoadResultRecyclerViewAdapter(
-                            Collections.<SearchResult>emptyList(), mListener));
+                            Collections.<Video>emptyList(), mListener));
         }
         return view;
     }
@@ -105,6 +105,6 @@ public class LoadResultFragment extends Fragment {
      */
     public interface OnLoadResultListInteractionListener {
         // TODO: Update argument type and name
-        void onLoadResultSelected(SearchResult item);
+        void onLoadResultSelected(Video item);
     }
 }
