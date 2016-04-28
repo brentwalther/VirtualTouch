@@ -21,6 +21,8 @@ import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +67,10 @@ public class LoadActivity extends AppCompatActivity
 
     @Override
     public void onLoadResultSelected(Video item) {
-        Intent intent = new Intent(this, RecordActivity.class);
-        intent.putExtra("videoId", item.getId());
-        intent.putExtra("videoTitle", item.getSnippet().getTitle());
-        intent.putExtra("videoChannel", item.getSnippet().getChannelTitle());
+        Intent intent = new Intent(this, PlaybackActivity.class);
+        String selected_video = item.getId();
+        intent.putExtra("videoId", selected_video);
+        intent.putExtra("reactions", getReaction(selected_video));
         startActivity(intent);
     }
 
@@ -159,4 +161,34 @@ public class LoadActivity extends AppCompatActivity
 
         return identifiers;
     }
+
+    private long[] getReaction(String video_id){
+        FileInputStream fis = null;
+        try {
+            fis = openFileInput(video_id);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        StringBuffer fileContent = new StringBuffer("");
+        String reactionString;
+        byte[] buffer = new byte[1024];
+
+        try {
+            int n;
+            while ((n = fis.read(buffer)) != -1) {
+                fileContent.append(new String(buffer, 0, n));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        reactionString = String.valueOf(fileContent);
+        String[] stringReactionArray = reactionString.split(",");
+        // The first value is the saved name of the reaction,
+        // so we account for it by altering our computations by 1
+        long reactionArray[] = new long[stringReactionArray.length - 1];
+        for(int i = 1; i < stringReactionArray.length; i++){
+            reactionArray[i - 1] = Long.valueOf(stringReactionArray[i]);
+        }
+
+        return reactionArray;    }
 }
