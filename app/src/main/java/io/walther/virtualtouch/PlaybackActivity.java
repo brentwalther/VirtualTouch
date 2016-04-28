@@ -83,6 +83,7 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
     public void onSeekTo(int i) {
 
     }
+
     //The way files are loaded is that the filename is their video id
     //have to change by allowing user to select a file(reaction)
     //FUNCTION CURRENTLY NOT USED
@@ -128,7 +129,9 @@ public class PlaybackActivity extends Activity implements YouTubePlayer.OnInitia
         }
 
         public void react(long time) {
-            vibrator.vibrate(time);
+            if (vibrator != null) {
+                vibrator.vibrate(time);
+            }
         }
         public void reset() { /* do nothing */ }
     }

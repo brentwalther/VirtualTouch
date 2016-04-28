@@ -89,7 +89,6 @@ public class MyLoadResultRecyclerViewAdapter extends RecyclerView.Adapter<MyLoad
                             if (mItem != null) {
                                 loader.setVideo(mItem.getId());
                             }
-                            loader.release();
                         }
 
                         @Override

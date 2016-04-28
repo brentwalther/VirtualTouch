@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="io.walther.virtualtouch.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/search_for_devices"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Search for Devices"
         app:showAsAction="never" />
 </menu>

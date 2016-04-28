@@ -183,6 +183,11 @@ public class LoadActivity extends AppCompatActivity
         }
         reactionString = String.valueOf(fileContent);
         String[] stringReactionArray = reactionString.split(",");
+        StringBuffer buff = new StringBuffer("REACTIONS: ");
+        for(String l : stringReactionArray) {
+            buff.append(" " + l + ",");
+        }
+        Log.d("BRENTBRENT", buff.toString());
         // The first value is the saved name of the reaction,
         // so we account for it by altering our computations by 1
         long reactionArray[] = new long[stringReactionArray.length - 1];

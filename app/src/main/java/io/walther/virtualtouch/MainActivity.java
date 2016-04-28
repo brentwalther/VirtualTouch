@@ -39,6 +39,14 @@ public class MainActivity extends AppCompatActivity implements DeviceTypeDialogF
         TextView appTitleTextView = (TextView) findViewById(R.id.appTitle);
         appTitleTextView.setText(R.string.app_name);
 
+        searchForBeans();
+    }
+
+    private void searchForBeans() {
+        findViewById(R.id.bean_connect_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.bean_connected).setVisibility(View.GONE);
+        ((TextView) findViewById(R.id.num_beans_found)).setText("Searching for devices...");
+
         BeanDiscoveryListener listener = new BeanDiscoveryListener() {
             @Override
             public void onBeanDiscovered(Bean bean, int rssi) {
@@ -79,7 +87,8 @@ public class MainActivity extends AppCompatActivity implements DeviceTypeDialogF
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.search_for_devices) {
+            searchForBeans();
             return true;
         }
 

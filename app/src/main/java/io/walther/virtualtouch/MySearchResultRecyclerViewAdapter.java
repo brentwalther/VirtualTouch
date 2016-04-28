@@ -83,7 +83,6 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
                             if (mItem != null) {
                                 loader.setVideo(mItem.getId().getVideoId());
                             }
-                            loader.release();
                         }
 
                         @Override

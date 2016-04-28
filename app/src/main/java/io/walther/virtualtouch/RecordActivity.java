@@ -90,24 +90,25 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
             }
         });
 
+        final Button colorChangingButton = (HardwareManager.getInstance().getInputDevice() != null ? inputDeviceButton : reactionButton);
         if (HardwareManager.getInstance().getInputDevice() != null) {
             recorder = new ReactionRecorder(HardwareManager.getInstance().getInputDevice());
-            final Activity activity = this;
-            recorder.addReactionCallback(new ReactionRecorder.ReactionCallback() {
-                @Override
-                public void isReacting(final boolean isReacting) {
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            inputDeviceButton.setBackgroundColor(isReacting ? getResources().getColor(R.color.softGreen) : 0);
-                        }
-                    });
-                }
-            });
             reactionButtonWrapper.setVisibility(View.GONE);
             inputDeviceButton.setVisibility(View.VISIBLE);
         } else {
             recorder = new ReactionRecorder(basicDevice);
         }
+        final Activity activity = this;
+        recorder.addReactionCallback(new ReactionRecorder.ReactionCallback() {
+            @Override
+            public void isReacting(final boolean isReacting) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    colorChangingButton.setBackgroundColor(isReacting ? getResources().getColor(R.color.softGreen) : 0);
+                }
+            });
+            }
+        });
         new Thread(recorder).start();
     }
 

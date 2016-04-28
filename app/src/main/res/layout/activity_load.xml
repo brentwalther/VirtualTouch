@@ -33,7 +33,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="41dp"
                 android:layout_marginLeft="75dp"
-                android:hint="Saved Reactions"
+                android:hint="Recent Reactions"
                 android:background="@android:color/transparent"
                 android:textSize="35dp"
                 android:layout_alignParentRight="false" />
