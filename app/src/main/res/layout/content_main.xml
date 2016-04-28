@@ -38,7 +38,7 @@
 
         <Button
             android:id="@+id/button"
-            android:layout_width="170dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:drawableLeft="@android:drawable/ic_search_category_default"
             android:onClick="launchSearchActivity"
@@ -48,6 +48,18 @@
             android:nestedScrollingEnabled="true"
             android:background="#ffffff" />
 
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@android:drawable/ic_media_play"
+            android:onClick="launchLoadActivity"
+            android:text="Load Saved File"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:nestedScrollingEnabled="true"
+            android:background="#ffffff" />
 
         <LinearLayout
             android:id="@+id/bean_connect_container"

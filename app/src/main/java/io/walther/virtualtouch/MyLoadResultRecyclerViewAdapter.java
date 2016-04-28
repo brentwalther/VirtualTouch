@@ -13,20 +13,20 @@ import com.google.api.services.youtube.model.SearchResult;
 
 import java.util.List;
 
-import io.walther.virtualtouch.SearchResultFragment.OnSearchResultListInteractionListener;
+import io.walther.virtualtouch.LoadResultFragment.OnLoadResultListInteractionListener;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link SearchResult} and makes a call to the
- * specified {@link OnSearchResultListInteractionListener}.
+ * specified {@link OnLoadResultListInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySearchResultRecyclerViewAdapter.ViewHolder> {
+public class MyLoadResultRecyclerViewAdapter extends RecyclerView.Adapter<MyLoadResultRecyclerViewAdapter.ViewHolder> {
 
     private final List<SearchResult> mValues;
-    private final OnSearchResultListInteractionListener mListener;
+    private final OnLoadResultListInteractionListener mListener;
 
-    public MySearchResultRecyclerViewAdapter(List<SearchResult> items,
-                                             OnSearchResultListInteractionListener listener) {
+    public MyLoadResultRecyclerViewAdapter(List<SearchResult> items,
+                                           OnLoadResultListInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -34,7 +34,7 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_searchresult, parent, false);
+                .inflate(R.layout.fragment_loadresult, parent, false);
         return new ViewHolder(view);
     }
 
@@ -48,7 +48,7 @@ public class MySearchResultRecyclerViewAdapter extends RecyclerView.Adapter<MySe
                 if (mListener != null) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onSearchResultSelected(holder.mItem);
+                    mListener.onLoadResultSelected(holder.mItem);
                 }
             }
         });
