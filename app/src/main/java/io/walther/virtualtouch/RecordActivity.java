@@ -187,10 +187,11 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
+        final String[] filename = new String[1];
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                final String filename = input.getText().toString();
+                filename[0] = input.getText().toString();
                 createNewPlaybackActivity();
             }
         });
@@ -207,6 +208,12 @@ public class RecordActivity extends Activity implements YouTubePlayer.OnInitiali
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        String reaction_name = filename[0] + ",";
+        try {
+            fos.write(reaction_name.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }        
         for (int i = 0; i < reactions.length; i++){
             String reaction = reactions[i] + ",";
             try {
