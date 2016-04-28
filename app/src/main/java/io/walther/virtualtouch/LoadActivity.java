@@ -36,7 +36,7 @@ public class LoadActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.loadtoolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -62,7 +62,7 @@ public class LoadActivity extends AppCompatActivity
     */
 
     private Fragment getResultListFragment() {
-        return getFragmentManager().findFragmentById(R.id.resultsList);
+        return getFragmentManager().findFragmentById(R.id.loadresultsList);
     }
 
     @Override
@@ -162,7 +162,7 @@ public class LoadActivity extends AppCompatActivity
         return identifiers;
     }
 
-    private long[] getReaction(String video_id){
+    public long[] getReaction(String video_id){
         FileInputStream fis = null;
         try {
             fis = openFileInput(video_id);
@@ -190,5 +190,6 @@ public class LoadActivity extends AppCompatActivity
             reactionArray[i - 1] = Long.valueOf(stringReactionArray[i]);
         }
 
-        return reactionArray;    }
+        return reactionArray;
+    }
 }
